@@ -135,7 +135,7 @@ The user said: "${transcriptText}"
 
 This is an instruction to refine the draft. Update the draft accordingly and return the full updated email.`
 
-      const response = await fetch('/claude-api/v1/messages', {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
