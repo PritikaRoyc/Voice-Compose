@@ -195,6 +195,18 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
     }
   }
 
+  const openInOutlook = () => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    const subject = encodeURIComponent(emailDraft.subject)
+    const body = encodeURIComponent(emailDraft.body)
+    const to = encodeURIComponent(recipient)
+    if (isMobile) {
+      window.location.href = `ms-outlook://compose?to=${to}&subject=${subject}&body=${body}`
+    } else {
+      window.open(`https://outlook.live.com/mail/0/deeplink/compose?to=${to}&subject=${subject}&body=${body}`, '_blank')
+    }
+  }
+
   const resetDraft = () => {
     if (editRecorderRef.current && isEditRecording) {
       editRecorderRef.current.stop()
@@ -345,20 +357,34 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
             </div>
           )}
 
-          <button onClick={openInGmail} style={{
-            width: '100%',
-            marginTop: '16px',
-            padding: '12px',
-            background: '#ea4335',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '15px',
-            fontWeight: '500'
-          }}>
-            ✉️ Open in Gmail
-          </button>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+            <button onClick={openInGmail} style={{
+              flex: 1,
+              padding: '12px',
+              background: '#ea4335',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '15px',
+              fontWeight: '500'
+            }}>
+              ✉️ Gmail
+            </button>
+            <button onClick={openInOutlook} style={{
+              flex: 1,
+              padding: '12px',
+              background: '#0078d4',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '15px',
+              fontWeight: '500'
+            }}>
+              ✉️ Outlook
+            </button>
+          </div>
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
             <button onClick={() => setShowEditBox(!showEditBox)} style={{
