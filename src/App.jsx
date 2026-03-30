@@ -8,6 +8,7 @@ function App() {
   const [status, setStatus] = useState('idle')
   const [transcript, setTranscript] = useState('')
   const [emailDraft, setEmailDraft] = useState({ subject: '', body: '' })
+  const [recipient, setRecipient] = useState('')
   const [showEditBox, setShowEditBox] = useState(false)
   const [editInstruction, setEditInstruction] = useState('')
   const [isEditRecording, setIsEditRecording] = useState(false)
@@ -177,6 +178,15 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
     }
   }
 
+  const openInGmail = () => {
+    const params = new URLSearchParams({
+      to: recipient,
+      su: emailDraft.subject,
+      body: emailDraft.body
+    })
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&${params.toString()}`, '_blank')
+  }
+
   const resetDraft = () => {
     if (editRecorderRef.current && isEditRecording) {
       editRecorderRef.current.stop()
@@ -184,6 +194,7 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
     emailDraftRef.current = { subject: '', body: '' }
     setEmailDraft({ subject: '', body: '' })
     setTranscript('')
+    setRecipient('')
     setShowEditBox(false)
     setEditInstruction('')
     setIsEditRecording(false)
@@ -245,6 +256,24 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
 
       {emailDraft.body && (
         <div className="card">
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ fontSize: '13px', color: '#666', display: 'block', marginBottom: '4px' }}>To (optional):</label>
+            <input
+              type="email"
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+              placeholder="recipient@gmail.com"
+              style={{
+                width: '100%',
+                padding: '10px',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
           <h3>Email draft:</h3>
           <p style={{ whiteSpace: 'pre-wrap' }}>{emailDraft.body}</p>
 
@@ -308,11 +337,11 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
             </div>
           )}
 
-          <button onClick={copyToClipboard} style={{
+          <button onClick={openInGmail} style={{
             width: '100%',
             marginTop: '16px',
             padding: '12px',
-            background: '#10b981',
+            background: '#ea4335',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
@@ -320,7 +349,7 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
             fontSize: '15px',
             fontWeight: '500'
           }}>
-            📋 Copy to clipboard
+            ✉️ Open in Gmail
           </button>
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
@@ -336,6 +365,18 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
             }}>
               {showEditBox ? 'Cancel edit' : '✏️ Edit draft'}
             </button>
+            <button onClick={copyToClipboard} style={{
+              flex: 1,
+              padding: '10px',
+              background: 'transparent',
+              border: '1px solid #ccc',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              color: '#666'
+            }}>
+              📋 Copy
+            </button>
             <button onClick={resetDraft} style={{
               flex: 1,
               padding: '10px',
@@ -346,7 +387,7 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
               fontSize: '14px',
               color: '#666'
             }}>
-              🔄 Start over
+              🔄 Reset
             </button>
           </div>
         </div>
