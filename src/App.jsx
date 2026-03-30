@@ -74,7 +74,7 @@ function App() {
       const formData = new FormData()
       formData.append('file', audioBlob, 'recording.webm')
       formData.append('model', 'whisper-large-v3')
-      const response = await fetch('/groq-api/openai/v1/audio/transcriptions', {
+      const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${GROQ_API_KEY}` },
         body: formData
@@ -91,7 +91,7 @@ function App() {
       const formData = new FormData()
       formData.append('file', audioBlob, 'recording.webm')
       formData.append('model', 'whisper-large-v3')
-      const response = await fetch('/groq-api/openai/v1/audio/transcriptions', {
+      const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${GROQ_API_KEY}` },
         body: formData
