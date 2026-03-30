@@ -201,9 +201,11 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
     const body = encodeURIComponent(emailDraft.body)
     const to = encodeURIComponent(recipient)
     if (isMobile) {
+      // ms-outlook:// deep link opens Outlook app on iOS/Android with compose pre-filled
       window.location.href = `ms-outlook://compose?to=${to}&subject=${subject}&body=${body}`
     } else {
-      window.open(`https://outlook.live.com/mail/0/deeplink/compose?to=${to}&subject=${subject}&body=${body}`, '_blank')
+      // Outlook web compose — works for both outlook.live.com (personal) and office accounts
+      window.open(`https://outlook.live.com/mail/deeplink/compose?to=${to}&subject=${subject}&body=${body}`, '_blank')
     }
   }
 
