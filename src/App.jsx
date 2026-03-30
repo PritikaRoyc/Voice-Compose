@@ -11,6 +11,7 @@ function App() {
   const [showEditBox, setShowEditBox] = useState(false)
   const [editInstruction, setEditInstruction] = useState('')
   const [isEditRecording, setIsEditRecording] = useState(false)
+  const [isEditTranscribing, setIsEditTranscribing] = useState(false)
   const mediaRecorderRef = useRef(null)
   const audioChunksRef = useRef([])
   const emailDraftRef = useRef({ subject: '', body: '' })
@@ -71,6 +72,7 @@ function App() {
 
   const transcribeEditAudio = async (audioBlob) => {
     try {
+      setIsEditTranscribing(true)
       const formData = new FormData()
       formData.append('file', audioBlob, 'recording.webm')
       formData.append('model', 'whisper-large-v3')
@@ -83,6 +85,8 @@ function App() {
       setEditInstruction(data.text)
     } catch (err) {
       alert('Transcription failed.')
+    } finally {
+      setIsEditTranscribing(false)
     }
   }
 
@@ -160,7 +164,10 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
 
       const content = data.content[0].text
       const cleaned = content.replace(/```json|```/g, '').trim()
-      const email = JSON.parse(cleaned)
+      const sanitized = cleaned.replace(/"((?:[^"\\]|\\[\s\S])*)"/g, (match) =>
+        match.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t')
+      )
+      const email = JSON.parse(sanitized)
       emailDraftRef.current = email
       setEmailDraft(email)
       setStatus('done')
@@ -171,11 +178,16 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
   }
 
   const resetDraft = () => {
+    if (editRecorderRef.current && isEditRecording) {
+      editRecorderRef.current.stop()
+    }
     emailDraftRef.current = { subject: '', body: '' }
     setEmailDraft({ subject: '', body: '' })
     setTranscript('')
     setShowEditBox(false)
     setEditInstruction('')
+    setIsEditRecording(false)
+    setIsEditTranscribing(false)
     setStatus('idle')
   }
 
@@ -242,7 +254,7 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
                 <textarea
                   value={editInstruction}
                   onChange={(e) => setEditInstruction(e.target.value)}
-                  placeholder={isEditRecording ? '🔴 Listening...' : 'Type or speak your edit instruction...'}
+                  placeholder={isEditRecording ? '🔴 Listening...' : isEditTranscribing ? '⏳ Transcribing...' : 'Type or speak your edit instruction...'}
                   style={{
                     flex: 1,
                     minHeight: '80px',
@@ -257,6 +269,7 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
                 />
                 <button
                   onClick={isEditRecording ? stopEditRecording : startEditRecording}
+                  disabled={isEditTranscribing}
                   style={{
                     width: '44px',
                     height: '44px',
@@ -264,12 +277,13 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
                     border: 'none',
                     background: isEditRecording ? '#ef4444' : '#4f46e5',
                     fontSize: '20px',
-                    cursor: 'pointer',
+                    cursor: isEditTranscribing ? 'not-allowed' : 'pointer',
                     flexShrink: 0,
-                    animation: isEditRecording ? 'pulse 1.5s infinite' : 'none'
+                    animation: isEditRecording ? 'pulse 1.5s infinite' : 'none',
+                    opacity: isEditTranscribing ? 0.5 : 1
                   }}
                 >
-                  {isEditRecording ? '⏹' : '🎤'}
+                  {isEditTranscribing ? '⏳' : isEditRecording ? '⏹' : '🎤'}
                 </button>
               </div>
               {isEditRecording && (
@@ -277,18 +291,19 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
                   Recording... tap ⏹ to stop
                 </p>
               )}
-              <button onClick={handleTextEdit} style={{
+              <button onClick={handleTextEdit} disabled={isEditTranscribing || isEditRecording} style={{
                 marginTop: '8px',
                 padding: '10px 20px',
                 background: '#4f46e5',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
-                cursor: 'pointer',
+                cursor: (isEditTranscribing || isEditRecording) ? 'not-allowed' : 'pointer',
                 fontSize: '14px',
-                width: '100%'
+                width: '100%',
+                opacity: (isEditTranscribing || isEditRecording) ? 0.5 : 1
               }}>
-                Apply edit
+                {isEditTranscribing ? 'Transcribing...' : 'Apply edit'}
               </button>
             </div>
           )}
