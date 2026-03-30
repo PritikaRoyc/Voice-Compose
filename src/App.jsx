@@ -181,11 +181,10 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
   const openInGmail = () => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
     if (isMobile) {
-      const params = new URLSearchParams({
-        subject: emailDraft.subject,
-        body: emailDraft.body
-      })
-      window.location.href = `mailto:${encodeURIComponent(recipient)}?${params.toString()}`
+      const subject = encodeURIComponent(emailDraft.subject)
+      const body = encodeURIComponent(emailDraft.body)
+      const to = encodeURIComponent(recipient)
+      window.location.href = `mailto:${to}?subject=${subject}&body=${body}`
     } else {
       const params = new URLSearchParams({
         to: recipient,
