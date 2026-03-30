@@ -179,12 +179,21 @@ This is an instruction to refine the draft. Update the draft accordingly and ret
   }
 
   const openInGmail = () => {
-    const params = new URLSearchParams({
-      to: recipient,
-      su: emailDraft.subject,
-      body: emailDraft.body
-    })
-    window.open(`https://mail.google.com/mail/?view=cm&fs=1&${params.toString()}`, '_blank')
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    if (isMobile) {
+      const params = new URLSearchParams({
+        subject: emailDraft.subject,
+        body: emailDraft.body
+      })
+      window.location.href = `mailto:${encodeURIComponent(recipient)}?${params.toString()}`
+    } else {
+      const params = new URLSearchParams({
+        to: recipient,
+        su: emailDraft.subject,
+        body: emailDraft.body
+      })
+      window.open(`https://mail.google.com/mail/?view=cm&fs=1&${params.toString()}`, '_blank')
+    }
   }
 
   const resetDraft = () => {
